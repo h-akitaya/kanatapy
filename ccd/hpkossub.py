@@ -53,7 +53,7 @@ class HPKOsSub(object):
         """ Check the image was processed or not.
         """
         if 'REDOSSUB' in self.hdu.header:
-            if f[0].header['REDOSSUB'] is True:
+            if self.hdu.header['REDOSSUB'] is True:
                 return True
         return False
 
