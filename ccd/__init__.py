@@ -1,0 +1,2 @@
+from kanatapy import ccd
+
