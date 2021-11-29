@@ -49,6 +49,14 @@ class HPKOsSub(object):
         self.hdu = self.hdulist[0]
         return True
 
+    def check_processed(self):
+        """ Check the image was processed or not.
+        """
+        if 'REDOSSUB' in self.hdu.header:
+            if f[0].header['REDOSSUB'] is True:
+                return True
+        return False
+
     def read_yrange(self):
         """ Read grid numbers of yrange from fits headers.
         """
@@ -149,7 +157,7 @@ class HPKOsSub(object):
         # Function fitting subtraction. (fit == True)
         else:
             psosr_1d = np.median(img_psos, axis=1)
-            print(img_eff.shape, len(psosr_1d))
+            #  print(img_eff.shape, len(psosr_1d))  # Debug.
             x = np.arange(0, self.y2-self.y1+1, 1)
             # Fitting Legendre 2nd order function.
             ospsr_fit = Legendre.fit(x, psosr_1d, 2)
@@ -253,6 +261,10 @@ if __name__ == '__main__':
             continue
         # File open.
         if hs.read_image() is False:
+            continue
+        # Check the image has been processed.
+        if hs.check_processed() is True:
+            print('Image has been already processed. Skip.')
             continue
         hs.read_yrange()
         img_subs = []
