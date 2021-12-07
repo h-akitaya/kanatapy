@@ -22,7 +22,7 @@ $ # or pip install --user .
 ```
 # Usage
 
-* hpkossub.py
+## ccd/hpkossub.py as a command tool.
 ```
  (path)/kanatapy/kanatapy/ccd/hpkossub.py
  usage: hpkossub [-h] [-s str] [-m] [-o] fn [fn ...]
@@ -76,6 +76,16 @@ $ ~/iraf/kanatapy/kanatapy/ccd/hpkossub.py -s "_ossub" HP0277958_0.fits
 Fits file HP0277958_0.fits opened.
 Fits file HP0277958_0_ossub.fits written.
    ```
+## ccd/hpkossub.py as a module.
+```
+In [1]: from kanatapy.ccd import hpkossub
+In [2]: hs = hpkossub.HPKOsSub('HP0277959_0.fits', sub_extention='_ossub')
+In [3]: hs.ossub_all()
+Fits file HP0277959_0.fits opened.
+Fits file HP0277959_0_ossub.fits written.
+```
+
+
 # Author
 
 * Hiroshi AKITAYA
