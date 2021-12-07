@@ -7,6 +7,7 @@
 #
 #       Python version:
 #         Ver 1.0  2021-10-26: H. Akitaya
+#         Ver 1.1  2021-12-07: H. Akitaya
 #
 
 import sys
@@ -36,18 +37,24 @@ class HPKOsSub(object):
         self.stat = {'stddevs': [], 'means': []}  # Statistics tables.
         self.fn_out = self.get_subext_fn(fn)  # Output file name.
 
+    def set_fn(self, fn):
+        """ Set file name.
+        """
+        self.fn = fn  # Input file name.
+        self.fn_out = self.get_subext_fn(fn)  # Output file name.
+
+
     def read_image(self):
         """ Read fits image.
         """
         try:
             self.hdulist = fits.open(self.fn)
         except OSError:
-            sys.stderr.write('File {} read error.\n'.format(self.fn))
-            return False
+            raise OSError('File {} read error.\n'.format(self.fn))
+            
         if self.verbose:
-            print('Fits file {} open.'.format(self.fn))
+            print('Fits file {} opened.'.format(self.fn))
         self.hdu = self.hdulist[0]
-        return True
 
     def check_processed(self):
         """ Check the image was processed or not.
@@ -197,15 +204,15 @@ class HPKOsSub(object):
             try:
                 os.remove(self.fn_out)
             except PermissionError:
-                sys.stderr.write('Failed to overwrite file: {}\n'.format(self.fn_out))
-                return False
+                raise PermissionError('Failed to overwrite file: {}\n'.format(self.fn_out))
             print('File {} exists. Overwrite.'.format(self.fn_out))
         try:
             hdul_out.writeto(self.fn_out)
         except OSError:
-            sys.stderr.write('Failed to write file: {}\n'.format(self.fn_out))
-            return False
-        return True
+            raise OSError('Failed to write file: {}\n'.format(self.fn_out))
+        if self.verbose:
+            print('Fits file {} written.'.format(self.fn_out))
+
 
     def append_log_to_fits_headers(self, hdr):
         # History.
@@ -227,20 +234,58 @@ class HPKOsSub(object):
         # Check flag of processing.
         hdr['REDOSSUB'] = (True, 'Pre/over-scan region subtraction (Boolean)')
 
+    def ossub_all(self, median=False):
+        """ Do all processed of overscan subtraction.
+        """
+        
+        # Check output file existence.
+        if os.path.exists(self.fn_out) and self.overwrite is False:
+            print('File {} exists. Skip.'.format(self.fn_out))
+            raise FileExistsError('File {} exists. Skip.'.format(self.fn_out))
+        
+        # File open.
+        self.read_image()
+            
+        # Check the image has been processed.
+        if self.check_processed() is True:
+            raise ValueError('Image has been already processed. Skip.')
+
+        # Read yrange information from the original fits file.
+        self.read_yrange()
+        # Memory array for processed sub-images.
+        img_subs = []
+
+        # Process each port area.
+        for port_n in range(1, 5):
+            # Cut out the entire area of the port #port_n.
+            img = self.get_port_area_data(port_n)
+            # Cut out the effective area.
+            img_eff = self.get_effective_area_data(port_n)
+            # Cut out the pre-scan and over-scan regions.
+            img_psos, img_ps, img_os = self.get_psos_data(img, port_n)
+            # Calculate statistics.
+            stddev, mean = self.calc_stddev_and_mean(img_os)
+            self.stat['stddevs'].append(stddev)
+            self.stat['means'].append(mean)
+            # Subtract overscan level from the sub-image and
+            # store it to the memory array.
+            img_subs.append(self.subtract_overscan_region(img_eff, img_os, median=median))
+            
+        # Concatenate all of the processed sub-images.
+        img_sub = np.concatenate(img_subs, axis=1)
+
+        self.write_file(img_sub)
 
 if __name__ == '__main__':
     
     # Option parser
     parser = argparse.ArgumentParser(prog='hpkossub', fromfile_prefix_chars='@')
-    #parser.add_argument('-l', '--list', metavar='str', type=str,
-    #                       default='HOW.list',
-    #                       help = 'File list name')
     parser.add_argument('-s', '--sub-extention', metavar='str', type=str,
                            default='.bs',
                            help = 'Sub-extention of output file (default: .bs)')
     parser.add_argument('-m', '--median', action='store_true',
                         default=False,
-                        help = 'Median value is uses as an overscan region level. (Default: Fitting overscan region in y-direction by Legendre 2nd func.')
+                        help = 'Median value is uses as an overscan region level. Default: Fitting overscan region in y-direction by Legendre 2nd func.')
     parser.add_argument('-o', '--overwrite', action='store_true', 
                         default=False,
                         help = 'Overwrite existing file(s)')
@@ -248,36 +293,7 @@ if __name__ == '__main__':
                         help='Fits file names (\'@list.txt\': file list))')
     args = parser.parse_args()
 
-    """ Debug.
-    """
-    #print(args)  # for debug
-    #print(args.files)  # for debug
-
     for fn in args.files:
         hs = HPKOsSub(fn, sub_extention=args.sub_extention, overwrite=args.overwrite)
-        # Check output file existence.
-        if os.path.exists(hs.fn_out) and args.overwrite is False:
-            print('File {} exists. Skip.'.format(hs.fn_out))
-            continue
-        # File open.
-        if hs.read_image() is False:
-            continue
-        # Check the image has been processed.
-        if hs.check_processed() is True:
-            print('Image has been already processed. Skip.')
-            continue
-        hs.read_yrange()
-        img_subs = []
-        for port_n in range(1, 5):
-            img = hs.get_port_area_data(port_n)
-            img_eff = hs.get_effective_area_data(port_n)
-            img_psos, img_ps, img_os = hs.get_psos_data(img, port_n)
-            #stddev, mean = hs.calc_stddev_and_mean(img_psos)
-            stddev, mean = hs.calc_stddev_and_mean(img_os)
-            hs.stat['stddevs'].append(stddev)
-            hs.stat['means'].append(mean)
-            #img_subs.append(hs.subtract_overscan_region(img_eff, img_psos, fit=fit))
-            img_subs.append(hs.subtract_overscan_region(img_eff, img_os, median=args.median))
-        
-        img_sub = np.concatenate(img_subs, axis=1)
-        hs.write_file(img_sub)
+        # Subtract overscan regions.
+        hs.ossub_all(args.median)
