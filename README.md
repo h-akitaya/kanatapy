@@ -36,7 +36,7 @@ optional arguments:
   -m, --median          Median value is uses as an overscan region level. (Default: Fitting overscan region in y-direction by Legendre 2nd func.
   -o, --overwrite       Overwrite existing file(s)
 ```
-	* example 1
+   * example 1
    ```
    $ ~/iraf/kanatapy/kanatapy/ccd/hpkossub.py HP0277904_0.fits
    Fits file HP0277904_0.fits opened.
