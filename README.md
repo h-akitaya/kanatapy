@@ -37,28 +37,28 @@ optional arguments:
   -o, --overwrite       Overwrite existing file(s)
 ```
    * example 1
-```
+   ```
 $ ~/iraf/kanatapy/kanatapy/ccd/hpkossub.py HP0277904_0.fits
 Fits file HP0277904_0.fits opened.
 Fits file HP0277904_0.bs.fits written.
-```
+   ```
    * example 2
-```
+   ```
 $ ~/iraf/kanatapy/kanatapy/ccd/hpkossub.py -o HP0277904_0.fits
 Fits file HP0277904_0.fits opened.
 File HP0277904_0.bs.fits exists. Overwrite.
 Fits file HP0277904_0.bs.fits written.
-```
-    * example 3
-```
+   ```
+   * example 3
+   ```
 $ ~/iraf/kanatapy/kanatapy/ccd/hpkossub.py HP027790[12]_0.fits
 Fits file HP0277901_0.fits opened.
 Fits file HP0277901_0.bs.fits written.
 Fits file HP0277902_0.fits opened.
 Fits file HP0277902_0.bs.fits written.
-```
+   ```
    * example 4
-```
+   ```
 $ ls -1 HP027791[12]_0.fits > file.lst
 $ cat file.lst 
 HP0277911_0.fits
@@ -68,7 +68,7 @@ Fits file HP0277911_0.fits opened.
 Fits file HP0277911_0.bs.fits written.
 Fits file HP0277912_0.fits opened.
 Fits file HP0277912_0.bs.fits written.
-```
+   ```
 # Author
 
 * Hiroshi AKITAYA
