@@ -17,7 +17,8 @@ Kanata reduction and operation tools.
 ```bash
 $ git clone https://github.com/h-akitaya/kanatapy.git
 $ cd kanatapy
-$ pip install --user kanatapy
+$ pip install --user -e .
+$ # or pip install --user .
 ```
 # Usage
 
