@@ -90,18 +90,18 @@ class HPKOsSub(object):
 
         # Compatibility for hnrimccd.cl in honirred cl-script package.
         if self.compat_honirred_iraf:
-            __AREA_y1_HNTRIMCCD = 1  # y-min of read area defined in hntrimcccd.cl (for compatibility.)
-            __IMAGE_y1_HNTRIMCCD = 3  # y-min of image area defined in hntrimcccd.cl (for compatibility.)
+            __AREA_Y1_HNTRIMCCD = 1  # y-min of read area defined in hntrimcccd.cl (for compatibility.)
+            __IMAGE_Y1_HNTRIMCCD = 3  # y-min of image area defined in hntrimcccd.cl (for compatibility.)
             __AREA_Y2_HNTRIMCCD = 4240  # y-max of read area defined in hntrimcccd.cl (for compatibility.)
             __IMAGE_Y2_HNTRIMCCD = 4225  # y-max of image area defined in hntrimccd.cl (for compatibility.)
 
             naxis2 = self.hdu.header['NAXIS2']
-            if naxis2 != __IMAGE_Y2_HNTRIMCCD:
-                self.y1 = __IMAGE_y1_HNTRIMCCD - 1
+            if naxis2 != __AREA_Y2_HNTRIMCCD:
+                self.y1 = __IMAGE_Y1_HNTRIMCCD - 1
                 self.y2 = naxis2 - 1
             else:
-                self.y1 = __IMAGE_y1_HNTRIMCCD - 1
-                self.y2 = __IMAGE_Y2_HNTRIMCCD - __IMAGE_y1_HNTRIMCCD
+                self.y1 = __IMAGE_Y1_HNTRIMCCD - 1
+                self.y2 = __IMAGE_Y2_HNTRIMCCD - 1
 
     def get_port_area_data(self, port_n :int) -> np.ndarray:
         """

@@ -79,13 +79,14 @@ Fits file HP0277958_0_ossub.fits written.
 Compatible mode to hntrimccd.cl in honirred cl-script IRAF package.
 Output image with the same y-direction size as hntrimccd.cl.
 ```
+# hntrimccd.cl compatible mode. (with option -c or --compat-hntrimcccd)
 $ ~/iraf/kanatapy/kanatapy/ccd/hpkossub.py -c -s '_bs' HN0123456opt00.fits
 Fits file HN0123456opt00.fits opened.
 Fits file HN0123456opt00_bs.fits written.
 $ imsize HN0123456opt00_bs.fits 
 HN0123456opt00_bs.fits 00:00:00.000 +00:00:00.00 J2000 10.035mx11.505m -0.2940/0.2940s/pix  2048x2348 pix
 
-# (cf.)
+# (cf.) Not compatible mode.
 ~/iraf/kanatapy/kanatapy/ccd/hpkossub.py -s '_notcompat' HN0123456opt00.fits
 Fits file HN0123456opt00.fits opened.
 Fits file HN0123456opt00_notcompat.fits written.
