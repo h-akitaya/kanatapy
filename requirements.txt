@@ -1,0 +1,6 @@
+kanatapy
+numpy
+astropy
+scipy
+setuptools
+matplotlib
