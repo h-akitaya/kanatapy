@@ -71,13 +71,13 @@ Fits file HP0277911_0.bs.fits written.
 Fits file HP0277912_0.fits opened.
 Fits file HP0277912_0.bs.fits written.
 ```
-# example 5
+### example 5
 ```
 $ ~/iraf/kanatapy/kanatapy/ccd/hpkossub.py -s "_ossub" HP0277958_0.fits
 Fits file HP0277958_0.fits opened.
 Fits file HP0277958_0_ossub.fits written.
 ```
-# example 6
+### example 6
 Compatible mode to hntrimccd.cl in honirred cl-script IRAF package.
 Output image with the same y-direction size as hntrimccd.cl.
 ```
