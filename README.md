@@ -24,7 +24,7 @@ $ pip install --user kanatapy
 ## hpkossub.py
 ```
  (path)/kanatapy/kanatapy/ccd/hpkossub.py
- usage: hpkossub [-h] [-s str] [-m] [-o] fn [fn ...]
+usage: hpkossub [-h] [-s str] [-m] [-o] [-c] fn [fn ...]
 
 positional arguments:
   fn                    Fits file names ('@list.txt': file list))
@@ -33,8 +33,10 @@ optional arguments:
   -h, --help            show this help message and exit
   -s str, --sub-extention str
                         Sub-extention of output file (default: .bs)
-  -m, --median          Median value is uses as an overscan region level. (Default: Fitting overscan region in y-direction by Legendre 2nd func.
+  -m, --median          Median value is uses as an overscan region level. Default: Fitting overscan region in y-direction by Legendre 2nd func.
   -o, --overwrite       Overwrite existing file(s)
+  -c, --compat-hntrimccd
+                        Compatible to hntrimccd.cl in honirred IRAF package.
 ```
 ### example 1
 ```

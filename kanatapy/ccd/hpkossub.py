@@ -11,7 +11,8 @@ Kanata HPK CCD tool for removing overscan regions.
 #       Python version:
 #         Ver 1.0  2021-10-26: H. Akitaya
 #         Ver 1.1  2021-12-07: H. Akitaya
-#
+#         Ver 1.2  2021-12-24: H. Akitaya
+
 
 import os
 from datetime import datetime
