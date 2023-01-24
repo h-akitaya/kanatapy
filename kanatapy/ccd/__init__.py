@@ -1,3 +1,3 @@
 from . import hpkossub
-from hn_port_rep_fix import *
+from . import hn_port_rep_fix
 __all__ = ['hpkossub', 'hn_port_rep_fix']
