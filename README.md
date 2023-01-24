@@ -6,7 +6,7 @@ kanatapy
 
 Kanata reduction and operation tools.
 
-# Requirement
+# Requirements
 
 * astropy
 * numpy
@@ -17,11 +17,22 @@ Kanata reduction and operation tools.
 ```bash
 $ git clone https://github.com/h-akitaya/kanatapy.git
 $ cd kanatapy
-$ pip install --user kanatapy
+$ pip install -e .
 ```
 # Usage
 
 ## hpkossub.py
+
+### As a module
+```
+from kanatapy import ccd
+fn = 'xxxxxxx.fits'
+hpkimg = ccd.hpkossub.HPKOsSub(fn, howpol=False)
+# HOWPol CCD: howpol=True, HONIR CCD: howpol=False
+hpkimg.ossub_all(median=True)
+```
+
+### As a command
 ```
  (path)/kanatapy/kanatapy/ccd/hpkossub.py
 usage: hpkossub [-h] [-s str] [-m] [-o] [-c] fn [fn ...]
@@ -96,6 +107,26 @@ $ imsize HN0123456opt00_notcompat.fits
 HN0123456opt00_notcompat.fits 00:00:00.000 +00:00:00.00 J2000 10.035mx11.015m -0.2940/0.2940s/pix  2048x2248 pix
 
 ```
+
+## hn_port_rep_fix.py
+
+### As a module
+```
+from kanatapy.ccd import hn_port_rep_fix
+fn_in = 'xxxxx.fits'
+fn_out = 'xxxxx_fix.fits'
+hn_port_rep_fix.port_replacement_fix(fn_in, fn_out, overwrite=True)
+```
+
+### As a command
+```
+$ hn_port_rep_fix.py xxxxxx.fits xxxxx_fix.fits
+```
+Showing help message.
+```
+$ hn_port_rep_fix.py --help
+```
+
 # Author
 
 * Hiroshi AKITAYA
