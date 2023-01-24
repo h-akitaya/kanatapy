@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # HONIR CCD port replacement fix tool.
-#   (for one pixel redundant pixel following to real pixel data)
+#   (for one pixel redundant pixel followed by real pixel data)
 #
 #  Since 2022-11-24 H. AKitaya (PERC/CIT)
 #
