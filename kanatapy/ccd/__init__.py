@@ -1,2 +1,2 @@
-from kanatapy import ccd
-
+from . import hpkossub
+__all__ = ['hpkossub']
