@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='kanatapy',
-    version='1.4.0',
+    version='1.4.1',
     description='Kanata Python tools',
     author='Hiroshi Akitaya',
     packages=find_packages(),
