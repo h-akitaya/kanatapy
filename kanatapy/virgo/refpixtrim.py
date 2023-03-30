@@ -264,7 +264,7 @@ class RefPixTrim(object):
         # Check flag of processing.
         hdr['REFPIXTR'] = (True, 'Reference pixel region subtraction (Boolean)')
 
-    def repfixtrim_all(self, median: bool = False) -> None:
+    def refpixtrim_all(self, median: bool = False) -> None:
         """ Do all processes of reference pixel region subtraction.
         """
 
@@ -329,4 +329,4 @@ if __name__ == '__main__':
     for fn in args.files:
         hs = RefPixTrim(fn, sub_extension=args.sub_extention, overwrite=args.overwrite)
         # Subtract overscan regions.
-        hs.repfixtrim_all(args.median)
+        hs.refpixtrim_all(args.median)
