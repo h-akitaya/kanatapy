@@ -1,2 +1,1 @@
-from . import ccd
-__all__ = ['ccd']
+__alL__ = ['ccd', 'virgo']

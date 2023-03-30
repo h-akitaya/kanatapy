@@ -1,21 +1,16 @@
 #!/usr/bin/env python3
 """
-Kanata HPK CCD tool for removing overscan regions.
+Kanata VIRGO tool for removing reference pixel regions.
 """
 
-#    HPK CCD REDUCTION SUB ROUTINE
-#       hpbossub.py: : Overscan subtraction and Merge 4 port images
+#    VIRGO REDUCTION SUB ROUTINE
+#       refpixtrim.py: : Reference pixel region subtraction and merge 4 port images
 #
 #       Original code:
-#           howossub.cl (CL script) by K. S. Kawabata
-#           and
-#           hntrimccd.cl by H. Akitaya
-#
+#           hpkossub.py and hntrimvirgo.cl by H. Akitaya
 #
 #       Python version:
-#         Ver 1.0  2021-10-26: H. Akitaya
-#         Ver 1.1  2021-12-07: H. Akitaya
-#         Ver 1.2  2021-12-24: H. Akitaya
+#         Ver 1.0  2023-03-30: H. Akitaya
 
 
 import os
@@ -29,23 +24,20 @@ from scipy import stats
 import astropy.io.fits as fits
 
 
-class HPKOsSub(object):
-
+class RefPixTrim(object):
     __N_PORTS = 4  # Number of readout ports.
 
-    def __init__(self, fn, verbose=True, sub_extension='.bs', overwrite=False,
-                 howpol=True, compat_hntrimccd=False, debug=False) -> None:
+    def __init__(self, _fn, verbose=True, sub_extension='_bt', overwrite=False,
+                 debug=False) -> None:
         """
         Initialization.
-        :param fn: Input filename.
+        :param _fn: Input filename.
         :param verbose: Verbose mode.
         :param sub_extension: Sub-extension of output file. (a.fits -> a_subext.fits)
         :param overwrite: Overwrite mode.
-        :param howpol: Instrument is howpol.
-        :param compat_hntrimccd: Compatibility mode to honirred hntrimccd.cl.
         :param debug: Debug mode.
         """
-        self.fn = fn  # Input file name.
+        self.fn = _fn  # Input file name.
         self.hdulist = None  # HDU list for the input image.
         self.hdu = None  # The first HDU of the input image.
         self.verbose = verbose  # Verbose mode (bool).
@@ -53,19 +45,17 @@ class HPKOsSub(object):
         self.y2 = None  # Y-end index of the effective area.
         self.sub_extension = sub_extension  # Sub-extention (xxxxSUBEXT.ext).
         self.overwrite = overwrite  # Overwrite mode (bool).
-        self.howpol = howpol  # Instrument is HOWPol or not. (Default: HOWPol)
         self.stat = {'stddevs': [], 'means': []}  # Statistics tables.
-        self.fn_out = self.get_subext_fn(fn)  # Output file name.
-        self.compat_honirred_iraf = compat_hntrimccd  # Y-length compatibility for hntrimccd.cl in honirred.
+        self.fn_out = self.get_subext_fn(_fn)  # Output file name.
         self.debug = debug  # Debug mode.
 
-    def set_fn(self, fn: str) -> None:
+    def set_fn(self, _fn: str) -> None:
         """
         Set file name.
-        :param fn: Input file name. (e.g.) HN0012345opt00.fits
+        :param _fn: Input file name. (e.g.) HN0012345opt00.fits
         """
-        self.fn = fn  # Input file name.
-        self.fn_out = self.get_subext_fn(fn)  # Output file name.
+        self.fn = _fn  # Input file name.
+        self.fn_out = self.get_subext_fn(_fn)  # Output file name.
 
     def read_image(self) -> None:
         """ Read fits image.
@@ -80,10 +70,10 @@ class HPKOsSub(object):
         self.hdu = self.hdulist[0]
 
     def check_processed(self) -> bool:
-        """ Check the image was processed or not (check fits header REDOSSUB).
+        """ Check the image was processed or not (check fits header REFPIXTR).
         """
-        if 'REDOSSUB' in self.hdu.header:
-            if self.hdu.header['REDOSSUB'] is True:
+        if 'REFPIXTR' in self.hdu.header:
+            if self.hdu.header['REFPIXTR'] is True:
                 return True
         return False
 
@@ -93,22 +83,7 @@ class HPKOsSub(object):
         self.y1 = self.hdu.header['EFPYMIN1'] - 1
         self.y2 = self.y1 + self.hdu.header['EFPYRNG1'] - 1
 
-        # Compatibility for hnrimccd.cl in honirred cl-script package.
-        if self.compat_honirred_iraf:
-            __AREA_Y1_HNTRIMCCD = 1  # y-min of read area defined in hntrimcccd.cl (for compatibility.)
-            __IMAGE_Y1_HNTRIMCCD = 3  # y-min of image area defined in hntrimcccd.cl (for compatibility.)
-            __AREA_Y2_HNTRIMCCD = 4240  # y-max of read area defined in hntrimcccd.cl (for compatibility.)
-            __IMAGE_Y2_HNTRIMCCD = 4225  # y-max of image area defined in hntrimccd.cl (for compatibility.)
-
-            naxis2 = self.hdu.header['NAXIS2']
-            if naxis2 != __AREA_Y2_HNTRIMCCD:
-                self.y1 = __IMAGE_Y1_HNTRIMCCD - 1
-                self.y2 = naxis2 - 1
-            else:
-                self.y1 = __IMAGE_Y1_HNTRIMCCD - 1
-                self.y2 = __IMAGE_Y2_HNTRIMCCD - 1
-
-    def get_port_area_data(self, port_n :int) -> np.ndarray:
+    def get_port_area_data(self, port_n: int) -> np.ndarray:
         """
         Get a port data array of number port_n.
         """
@@ -186,8 +161,9 @@ class HPKOsSub(object):
         # Return concatenated array, prescan region array, and ovserscan array.
         return img_psos, img_ps, img_os
 
-    def calc_stddev_and_mean(self, img: np.ndarray,
-                             low: float=2.5, high: float=2.5) -> (float, float):
+    @staticmethod
+    def calc_stddev_and_mean(img: np.ndarray,
+                             low: float = 2.5, high: float = 2.5) -> (float, float):
         """ Calculate a standard deviation and mean in an image array 'img' with sigma-clipping method.
         """
         # Get sigma-clipped array.
@@ -208,6 +184,10 @@ class HPKOsSub(object):
             midpt = np.median(img_psos, axis=None)
             img_sub = img_eff - midpt
             return img_sub
+        else:
+            return img_eff
+
+        """ # function fitting used for HPK CCD tool.
         # Function fitting subtraction. (fit == True)
         else:
             psosr_1d = np.median(img_psos, axis=1)
@@ -232,17 +212,18 @@ class HPKOsSub(object):
             fit_array_2d = np.tile(fit_array[1], (img_eff.shape[1], 1)).T
             img_sub = img_eff - fit_array_2d
             return img_sub
+            """
 
-    def get_subext_fn(self, fn: str) -> str:
+    def get_subext_fn(self, _fn: str) -> str:
         """ Get filename with sub-extension.
-        :param fn: File name.
+        :param _fn: File name.
         :return: File name with a sub-extension.
         """
-        fns = os.path.splitext(fn)
+        fns = os.path.splitext(_fn)
         fn_out = fns[0] + self.sub_extension + fns[1]
         return fn_out
 
-    def write_file(self, img_bs: np.ndarray)-> None:
+    def write_file(self, img_bs: np.ndarray) -> None:
         """ Write result to a new fits file.
         """
         hdu_out = fits.PrimaryHDU(img_bs.astype('float32'),
@@ -272,19 +253,19 @@ class HPKOsSub(object):
         hdr['history'] = 'File names: {} -> {}'.format(self.fn, self.fn_out)
         # Readout noise.
         for port_n in range(1, len(self.stat['stddevs']) + 1):
-            hdr['OSRNO_P{:1d}'.format(port_n)] = \
+            hdr['RFRNO_P{:1d}'.format(port_n)] = \
                 (self.stat['stddevs'][port_n - 1],
-                 'Pre/Ovserscan reg. stddev. (port #{:1d})'.format(port_n))
+                 'Reference pixel reg. stddev. (port #{:1d})'.format(port_n))
         # Mean.
         for port_n in range(1, len(self.stat['means']) + 1):
-            hdr['OSAVE_P{:1d}'.format(port_n)] = \
+            hdr['RFAVE_P{:1d}'.format(port_n)] = \
                 (self.stat['means'][port_n - 1],
-                 'Pre/Ovserscan reg. mean (port #{:1d})'.format(port_n))
+                 'Reference pixel reg. mean (port #{:1d})'.format(port_n))
         # Check flag of processing.
-        hdr['REDOSSUB'] = (True, 'Pre/over-scan region subtraction (Boolean)')
+        hdr['REFPIXTR'] = (True, 'Reference pixel region subtraction (Boolean)')
 
-    def ossub_all(self, median: bool = False) -> None:
-        """ Do all processed of overscan subtraction.
+    def repfixtrim_all(self, median: bool = False) -> None:
+        """ Do all processes of reference pixel region subtraction.
         """
 
         # Check output file existence.
@@ -305,7 +286,7 @@ class HPKOsSub(object):
         img_subs = []
 
         # Process each port area.
-        for port_n in range(1, HPKOsSub.__N_PORTS+1):
+        for port_n in range(1, RefPixTrim.__N_PORTS + 1):
             # Cut out the entire area of the port #port_n.
             img = self.get_port_area_data(port_n)
             # Cut out the effective area.
@@ -320,7 +301,7 @@ class HPKOsSub(object):
             # store it to the memory array.
             img_subs.append(self.subtract_overscan_region(img_eff, img_os, median=median))
 
-        # Concatenate all of the processed sub-images.
+        # Concatenate all the processed sub-images.
         img_sub = np.concatenate(img_subs, axis=1)
 
         self.write_file(img_sub)
@@ -329,26 +310,23 @@ class HPKOsSub(object):
 if __name__ == '__main__':
 
     # Option parser
-    parser = argparse.ArgumentParser(prog='hpkossub', fromfile_prefix_chars='@')
+    parser = argparse.ArgumentParser(prog='refpixtrim', fromfile_prefix_chars='@')
     parser.add_argument('-s', '--sub-extention', metavar='str', type=str,
-                        default='.bs',
-                        help='Sub-extention of output file (default: .bs)')
+                        default='_bt',
+                        help='Sub-extention of output file (default: _bt)')
     parser.add_argument('-m', '--median', action='store_true',
                         default=False,
-                        help='Median value is uses as an overscan region level. Default: Fitting overscan region in '
-                             'y-direction by Legendre 2nd func.')
+                        help='Median value is used as an reference pixel region level. '
+                        'Default: not subtract a level of reference pixel region.')
+#                             'Default: Fitting overscan region in y-direction by Legendre 2nd func.')
     parser.add_argument('-o', '--overwrite', action='store_true',
                         default=False,
                         help='Overwrite existing file(s)')
-    parser.add_argument('-c', '--compat-hntrimccd', action='store_true',
-                        default=False,
-                        help='Compatible to hntrimccd.cl in honirred IRAF package.')
     parser.add_argument('files', metavar='fn', type=str, nargs='+',
                         help='Fits file names (\'@list.txt\': file list))')
     args = parser.parse_args()
 
     for fn in args.files:
-        hs = HPKOsSub(fn, sub_extension=args.sub_extention, overwrite=args.overwrite,
-                      compat_hntrimccd=args.compat_hntrimccd)
+        hs = RefPixTrim(fn, sub_extension=args.sub_extention, overwrite=args.overwrite)
         # Subtract overscan regions.
-        hs.ossub_all(args.median)
+        hs.repfixtrim_all(args.median)

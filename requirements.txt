@@ -1,4 +1,3 @@
-kanatapy
 numpy
 astropy
 scipy
