@@ -140,7 +140,7 @@ $ hn_port_rep_fix.py --help
 from kanatapy.virgo import RefPixTrim # import RefPixTrim class.
 fn = 'xxxxxxx.fits'
 vrgimg = RefPixTrim(fn)  # Create instance of HPKOsSub.
-hpkimg.refpixtrim_all(median=True)
+hpkimg.refpixtrim_all()
 ```
 
 
