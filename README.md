@@ -131,9 +131,9 @@ Showing help message.
 $ hn_port_rep_fix.py --help
 ```
 
-## VIRGO[^1] Reference Pixel Region removal
+## VIRGO[^2] Reference Pixel Region removal
 
-[^1]: Raytheon HgTeCd 2K x 2K array.
+[^2]: Raytheon HgTeCd 2K x 2K array.
 
 ### As a module
 ```
