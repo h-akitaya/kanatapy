@@ -25,6 +25,9 @@ import astropy.io.fits as fits
 
 
 class RefPixTrim(object):
+    """
+    HONIR Virgo reference pixel regions subtraction class.
+    """
     __N_PORTS = 4  # Number of readout ports.
 
     def __init__(self, _fn, verbose=True, sub_extension='_bt', overwrite=False,

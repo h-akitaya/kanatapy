@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Kanata HPK CCD tool for removing overscan regions.
+Kanata HPK CCD tool for removing over-scan/pre-scan regions.
 """
 
 #    HPK CCD REDUCTION SUB ROUTINE
@@ -16,6 +16,7 @@ Kanata HPK CCD tool for removing overscan regions.
 #         Ver 1.0  2021-10-26: H. Akitaya
 #         Ver 1.1  2021-12-07: H. Akitaya
 #         Ver 1.2  2021-12-24: H. Akitaya
+#         Ver 1.3  2023-04-05: H. Akitaya; comments modified.
 
 
 import os
@@ -30,6 +31,9 @@ import astropy.io.fits as fits
 
 
 class HPKOsSub(object):
+    """
+    HPK CCD Over-scan/Pre-scan Regions Subtraction Class.
+    """
 
     __N_PORTS = 4  # Number of readout ports.
 
@@ -347,8 +351,8 @@ if __name__ == '__main__':
                         help='Fits file names (\'@list.txt\': file list))')
     args = parser.parse_args()
 
-    for fn in args.files:
-        hs = HPKOsSub(fn, sub_extension=args.sub_extention, overwrite=args.overwrite,
+    for fn_in in args.files:
+        hs = HPKOsSub(fn_in, sub_extension=args.sub_extention, overwrite=args.overwrite,
                       compat_hntrimccd=args.compat_hntrimccd)
-        # Subtract overscan regions.
+        # Subtract over-scan/pre-scan regions.
         hs.ossub_all(args.median)

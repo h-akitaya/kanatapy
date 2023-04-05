@@ -1,2 +1,2 @@
-from . import refpixtrim
-__all__ = ['refpixtrim']
+from .refpixtrim import RefPixTrim
+__all__ = ['RefPixTrim']

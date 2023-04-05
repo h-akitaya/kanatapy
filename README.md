@@ -21,13 +21,17 @@ $ pip install -e .
 ```
 # Usage
 
-## hpkossub.py
+## HPK[^1] CCD Over/Pre-scan Region Removal
+
+Available for both HONIR and HOWPol CCD.
+
+[^1]: Hamamatsu Photonics
 
 ### As a module
 ```
-from kanatapy import ccd
+from kanatapy.ccd import HPKOsSub  # import HPKOsSub class.
 fn = 'xxxxxxx.fits'
-hpkimg = ccd.hpkossub.HPKOsSub(fn, howpol=False)
+hpkimg = HPKOsSub(fn, howpol=False)  # Create instance of HPKOsSub.
 # HOWPol CCD: howpol=True, HONIR CCD: howpol=False
 hpkimg.ossub_all(median=True)
 ```
@@ -108,14 +112,14 @@ HN0123456opt00_notcompat.fits 00:00:00.000 +00:00:00.00 J2000 10.035mx11.015m -0
 
 ```
 
-## hn_port_rep_fix.py
+## CCD Port-replacement Fix Tool
 
 ### As a module
 ```
-from kanatapy.ccd import hn_port_rep_fix
+from kanatapy.ccd import port_replacement_fix
 fn_in = 'xxxxx.fits'
 fn_out = 'xxxxx_fix.fits'
-hn_port_rep_fix.port_replacement_fix(fn_in, fn_out, overwrite=True)
+port_replacement_fix(fn_in, fn_out, overwrite=True)
 ```
 
 ### As a command
@@ -126,6 +130,19 @@ Showing help message.
 ```
 $ hn_port_rep_fix.py --help
 ```
+
+## VIRGO[^1] Reference Pixel Region removal
+
+[^1]: Raytheon HgTeCd 2K x 2K array.
+
+### As a module
+```
+from kanatapy.virgo import RefPixTrim # import RefPixTrim class.
+fn = 'xxxxxxx.fits'
+vrgimg = RefPixTrim(fn)  # Create instance of HPKOsSub.
+hpkimg.refpixtrim_all(median=True)
+```
+
 
 # Author
 
