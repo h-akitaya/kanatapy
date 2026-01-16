@@ -108,6 +108,19 @@ def subtract_bias(fn: str, fn_bias: str, overwrite: bool = False,
 
     return fn_new
 
+def remove_ignore_flag_files(fns: list) -> list:
+    """ Remove ignore flag files.
+    :param list fns: list of source images
+    :return: list of source images without ignore flag files """
+    fn_list = []
+    for fn in fns:
+        with fits.open(fn) as hdul:
+            if not 'REDIGNR' in hdul[0].header:
+                continue
+            if not hdul[0].header['REDIGNR'] == True:
+                fn_list.append(fn)
+    return fn_list
+
 
 def group_by_hwpangle(fns: list):
     """ Group images by HWPANGLE
