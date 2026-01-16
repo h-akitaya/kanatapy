@@ -78,8 +78,8 @@ def imcombine(fn_list: list, fn_out: str = "", overwrite: bool = True,
     return hdul
 
 
-def bias_subtraction(fn: str, fn_bias: str, overwrite: bool = False,
-                     subext: str = '_bs') -> str:
+def subtract_bias(fn: str, fn_bias: str, overwrite: bool = False,
+                  subext: str = '_bs') -> str:
     """ Bias subtraction.
     :param str fn: objective file name
     :param str fn_bias: bias file name
