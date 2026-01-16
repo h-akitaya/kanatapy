@@ -4,7 +4,7 @@ Kanata HPK CCD tool for removing over-scan/pre-scan regions.
 """
 
 #    HPK CCD REDUCTION SUB ROUTINE
-#       hpbossub.py: : Overscan subtraction and Merge 4 port images
+#       hpkossub.py: : Overscan subtraction and Merge 4 port images
 #
 #       Original code:
 #           howossub.cl (CL script) by K. S. Kawabata
@@ -50,8 +50,8 @@ class HPKOsSub(object):
         :param debug: Debug mode.
         """
         self.fn = fn  # Input file name.
-        self.hdulist = None  # HDU list for the input image.
-        self.hdu = None  # The first HDU of the input image.
+        self.hdulist = None  # HDU list for the input imred.
+        self.hdu = None  # The first HDU of the input imred.
         self.verbose = verbose  # Verbose mode (bool).
         self.y1 = None  # Y-start index of the effective area.
         self.y2 = None  # Y-end index of the effective area.
@@ -72,7 +72,7 @@ class HPKOsSub(object):
         self.fn_out = self.get_subext_fn(fn)  # Output file name.
 
     def read_image(self) -> None:
-        """ Read fits image.
+        """ Read fits imred.
         """
         try:
             self.hdulist = fits.open(self.fn)
@@ -84,7 +84,7 @@ class HPKOsSub(object):
         self.hdu = self.hdulist[0]
 
     def check_processed(self) -> bool:
-        """ Check the image was processed or not (check fits header REDOSSUB).
+        """ Check the imred was processed or not (check fits header REDOSSUB).
         """
         if 'REDOSSUB' in self.hdu.header:
             if self.hdu.header['REDOSSUB'] is True:
@@ -100,9 +100,9 @@ class HPKOsSub(object):
         # Compatibility for hnrimccd.cl in honirred cl-script package.
         if self.compat_honirred_iraf:
             __AREA_Y1_HNTRIMCCD = 1  # y-min of read area defined in hntrimcccd.cl (for compatibility.)
-            __IMAGE_Y1_HNTRIMCCD = 3  # y-min of image area defined in hntrimcccd.cl (for compatibility.)
+            __IMAGE_Y1_HNTRIMCCD = 3  # y-min of imred area defined in hntrimcccd.cl (for compatibility.)
             __AREA_Y2_HNTRIMCCD = 4240  # y-max of read area defined in hntrimcccd.cl (for compatibility.)
-            __IMAGE_Y2_HNTRIMCCD = 4225  # y-max of image area defined in hntrimccd.cl (for compatibility.)
+            __IMAGE_Y2_HNTRIMCCD = 4225  # y-max of imred area defined in hntrimccd.cl (for compatibility.)
 
             naxis2 = self.hdu.header['NAXIS2']
             if naxis2 != __AREA_Y2_HNTRIMCCD:
@@ -122,14 +122,14 @@ class HPKOsSub(object):
         kyd_img_x1 = 'PORT{:1d}X1'.format(port_n)
         kyd_img_x2 = 'PORT{:1d}X2'.format(port_n)
 
-        # Index numbers of the image area,
+        # Index numbers of the imred area,
         x1 = self.hdu.header[kyd_img_x1] - 1
         x2 = self.hdu.header[kyd_img_x2] - 1
 
-        # Cut out the image area as ndarray.
+        # Cut out the imred area as ndarray.
         img = self.hdu.data[self.y1:self.y2 + 1, x1:x2 + 1]
 
-        # Return image area ndarray of the selected port.
+        # Return imred area ndarray of the selected port.
         return img
 
     def get_effective_area_data(self, port_n: int) -> np.ndarray:
@@ -143,14 +143,14 @@ class HPKOsSub(object):
         kyd_eff_x1 = 'EFPXMIN{:1d}'.format(port_n)
         kyd_eff_rng = 'EFPXRNG{:1d}'.format(port_n)
 
-        # Index numbers of the effective image area,
+        # Index numbers of the effective imred area,
         x1 = self.hdu.header[kyd_eff_x1] - 1
         x_rng = self.hdu.header[kyd_eff_rng]
 
-        # Cut out the image area as ndarray.
+        # Cut out the imred area as ndarray.
         img_eff = self.hdu.data[self.y1:self.y2 + 1, x1:x1 + x_rng]
 
-        # Return image area ndarray of the selected port.
+        # Return imred area ndarray of the selected port.
         return img_eff
 
     def get_psos_data(self, img: np.ndarray, port_n: int) -> (np.ndarray, np.ndarray, np.ndarray):
@@ -192,7 +192,7 @@ class HPKOsSub(object):
 
     def calc_stddev_and_mean(self, img: np.ndarray,
                              low: float=2.5, high: float=2.5) -> (float, float):
-        """ Calculate a standard deviation and mean in an image array 'img' with sigma-clipping method.
+        """ Calculate a standard deviation and mean in an imred array 'img' with sigma-clipping method.
         """
         # Get sigma-clipped array.
         clp, _, _ = stats.sigmaclip(np.ravel(img), low, high)
@@ -287,8 +287,10 @@ class HPKOsSub(object):
         # Check flag of processing.
         hdr['REDOSSUB'] = (True, 'Pre/over-scan region subtraction (Boolean)')
 
-    def ossub_all(self, median: bool = False) -> None:
+    def ossub_all(self, median: bool = False) -> str:
         """ Do all processed of overscan subtraction.
+        :param median: median estimation or not (average).
+        :return: output file name.
         """
 
         # Check output file existence.
@@ -299,7 +301,7 @@ class HPKOsSub(object):
         # File open.
         self.read_image()
 
-        # Check the image has been processed.
+        # Check the imred has been processed.
         if self.check_processed() is True:
             raise ValueError('Image has been already processed. Skip.')
 
@@ -320,7 +322,7 @@ class HPKOsSub(object):
             stddev, mean = self.calc_stddev_and_mean(img_os)
             self.stat['stddevs'].append(stddev)
             self.stat['means'].append(mean)
-            # Subtract overscan level from the sub-image and
+            # Subtract overscan level from the sub-imred and
             # store it to the memory array.
             img_subs.append(self.subtract_overscan_region(img_eff, img_os, median=median))
 
@@ -329,6 +331,14 @@ class HPKOsSub(object):
 
         self.write_file(img_sub)
 
+        return self.fn_out
+
+def hpkossub(fn_in: str, sub_extension='.bs', overwrite=False,
+                 howpol=True, compat_hntrimccd=False, debug=False, medianstack=True):
+    """Command line interface for HPKOSSub."""
+    hs = HPKOsSub(fn_in, sub_extension=sub_extension, overwrite=overwrite, howpol=howpol,
+                  compat_hntrimccd=compat_hntrimccd, debug=debug)
+    hs.ossub_all(medianstack)
 
 if __name__ == '__main__':
 

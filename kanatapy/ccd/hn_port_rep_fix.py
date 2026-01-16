@@ -10,9 +10,10 @@
 Ver. 0.1: 2022-11-24 H. Akitaya
 Ver. 0.2: 2023-01-24 H. Akitaya; add argparse options.
 Ver. 0.3: 2023-04-05 H. Akitaya; little fix.
+Ver. 0.4: 2024-08-07 H. Akitaya; comment modified.
 """
 
-__version__ = '0.3'
+__version__ = '0.4'
 __author__ = 'Hiroshi Akitaya'
 
 import os
@@ -22,11 +23,12 @@ import numpy as np
 from astropy.io import fits
 
 
-def port_replacement_fix(fn_in, fn_out, overwrite=False):
+def port_replacement_fix(fn_in: str, fn_out: str, overwrite: bool = False):
     """
-    Fix port replacement of an HPK CCD image.
-    fn_in: input fits file.
-    fn_out: output fits file.
+    Fix port replacement of an HPK CCD imred.
+    :param str fn_in: input fits file
+    :param str fn_out: output fits file
+    :param bool overwrite: overwrite mode
     """
     # Output file and overwrite mode check.
     if os.path.exists(fn_out) and (overwrite is False):
@@ -36,7 +38,6 @@ def port_replacement_fix(fn_in, fn_out, overwrite=False):
     # Image reconstruction.
     with fits.open(fn_in) as hdul:
         imgdata = hdul[0].data
-        hdr = hdul[0].header
 
         # Port 4 (Replacement, reflect, and 1-pix shift)
         data_p4_a = imgdata[:, 0:1]

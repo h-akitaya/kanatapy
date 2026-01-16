@@ -10,7 +10,8 @@ Kanata VIRGO tool for removing reference pixel regions.
 #           hpkossub.py and hntrimvirgo.cl by H. Akitaya
 #
 #       Python version:
-#         Ver 1.0  2023-03-30: H. Akitaya
+#         Ver. 1.0  2023-03-30: H. Akitaya
+#         Ver. 1.1  2024-08-07 H. Akitaya; comment modified.
 
 
 import os
@@ -34,15 +35,16 @@ class RefPixTrim(object):
                  debug=False) -> None:
         """
         Initialization.
-        :param _fn: Input filename.
-        :param verbose: Verbose mode.
-        :param sub_extension: Sub-extension of output file. (a.fits -> a_subext.fits)
-        :param overwrite: Overwrite mode.
-        :param debug: Debug mode.
+        :rtype: None
+        :param str _fn: input filename
+        :param bool verbose: verbose mode
+        :param str sub_extension: sub-extension of output file. (a.fits -> a_subext.fits)
+        :param bool overwrite: overwrite mode
+        :param bool debug: debug mode
         """
         self.fn = _fn  # Input file name.
-        self.hdulist = None  # HDU list for the input image.
-        self.hdu = None  # The first HDU of the input image.
+        self.hdulist = None  # HDU list for the input imred.
+        self.hdu = None  # The first HDU of the input imred.
         self.verbose = verbose  # Verbose mode (bool).
         self.y1 = None  # Y-start index of the effective area.
         self.y2 = None  # Y-end index of the effective area.
@@ -61,7 +63,7 @@ class RefPixTrim(object):
         self.fn_out = self.get_subext_fn(_fn)  # Output file name.
 
     def read_image(self) -> None:
-        """ Read fits image.
+        """ Read fits imred.
         """
         try:
             self.hdulist = fits.open(self.fn)
@@ -73,7 +75,7 @@ class RefPixTrim(object):
         self.hdu = self.hdulist[0]
 
     def check_processed(self) -> bool:
-        """ Check the image was processed or not (check fits header REFPIXTR).
+        """ Check the imred was processed or not (check fits header REFPIXTR).
         """
         if 'REFPIXTR' in self.hdu.header:
             if self.hdu.header['REFPIXTR'] is True:
@@ -96,14 +98,14 @@ class RefPixTrim(object):
         kyd_img_x1 = 'PORT{:1d}X1'.format(port_n)
         kyd_img_x2 = 'PORT{:1d}X2'.format(port_n)
 
-        # Index numbers of the image area,
+        # Index numbers of the imred area,
         x1 = self.hdu.header[kyd_img_x1] - 1
         x2 = self.hdu.header[kyd_img_x2] - 1
 
-        # Cut out the image area as ndarray.
+        # Cut out the imred area as ndarray.
         img = self.hdu.data[self.y1:self.y2 + 1, x1:x2 + 1]
 
-        # Return image area ndarray of the selected port.
+        # Return imred area ndarray of the selected port.
         return img
 
     def get_effective_area_data(self, port_n: int) -> np.ndarray:
@@ -117,14 +119,14 @@ class RefPixTrim(object):
         kyd_eff_x1 = 'EFPXMIN{:1d}'.format(port_n)
         kyd_eff_rng = 'EFPXRNG{:1d}'.format(port_n)
 
-        # Index numbers of the effective image area,
+        # Index numbers of the effective imred area,
         x1 = self.hdu.header[kyd_eff_x1] - 1
         x_rng = self.hdu.header[kyd_eff_rng]
 
-        # Cut out the image area as ndarray.
+        # Cut out the imred area as ndarray.
         img_eff = self.hdu.data[self.y1:self.y2 + 1, x1:x1 + x_rng]
 
-        # Return image area ndarray of the selected port.
+        # Return imred area ndarray of the selected port.
         return img_eff
 
     def get_psos_data(self, img: np.ndarray, port_n: int) -> (np.ndarray, np.ndarray, np.ndarray):
@@ -167,7 +169,7 @@ class RefPixTrim(object):
     @staticmethod
     def calc_stddev_and_mean(img: np.ndarray,
                              low: float = 2.5, high: float = 2.5) -> (float, float):
-        """ Calculate a standard deviation and mean in an image array 'img' with sigma-clipping method.
+        """ Calculate a standard deviation and mean in an imred array 'img' with sigma-clipping method.
         """
         # Get sigma-clipped array.
         clp, _, _ = stats.sigmaclip(np.ravel(img), low, high)
@@ -279,7 +281,7 @@ class RefPixTrim(object):
         # File open.
         self.read_image()
 
-        # Check the image has been processed.
+        # Check the imred has been processed.
         if self.check_processed() is True:
             raise ValueError('Image has been already processed. Skip.')
 
@@ -300,7 +302,7 @@ class RefPixTrim(object):
             stddev, mean = self.calc_stddev_and_mean(img_os)
             self.stat['stddevs'].append(stddev)
             self.stat['means'].append(mean)
-            # Subtract overscan level from the sub-image and
+            # Subtract overscan level from the sub-imred and
             # store it to the memory array.
             img_subs.append(self.subtract_overscan_region(img_eff, img_os, median=median))
 

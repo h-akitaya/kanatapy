@@ -10,9 +10,10 @@
 Ver. 0.1: 2022-11-24 H. Akitaya
 Ver. 0.2: 2023-01-24 H. Akitaya; add argparse options.
      0.2py2 2023-01-25 M. Sasada; apply to python2
+     0.3py2 2024-08-07: H. Akitaya; comment modified.
 """
 
-__version__ = '0.2py2'
+__version__ = '0.3py2'
 __author__ = 'Hiroshi Akitaya'
 
 import os
@@ -21,10 +22,10 @@ import sys
 import numpy as np
 from astropy.io import fits
 
-def port_replacement_fix(fn_in,fn_out,overwrite=False):
+def port_replacement_fix(fn_in, fn_out, overwrite=False):
     """
-    fn_in: input fits file.
-    fn_out: output fits file.
+    :param fn_in: input fits file
+    :param fn_out: output fits file
     """
     # Output file and overwritemode check.
     if os.path.exists(fn_out) and overwrite == False:
