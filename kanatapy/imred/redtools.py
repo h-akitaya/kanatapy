@@ -116,6 +116,7 @@ def remove_ignore_flag_files(fns: list) -> list:
     for fn in fns:
         with fits.open(fn) as hdul:
             if not 'REDIGNR' in hdul[0].header:
+                fn_list.append(fn)
                 continue
             if not hdul[0].header['REDIGNR'] == True:
                 fn_list.append(fn)
