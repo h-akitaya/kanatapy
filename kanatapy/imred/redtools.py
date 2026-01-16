@@ -176,16 +176,21 @@ def select_images_by_header(fns: list, cond_dict: dict, logic: str = 'or') -> li
     for fn in fns:
         with fits.open(fn) as hdul:
             if logic == 'or':
+                flag = False
                 for key in cond_dict:
                     if hdul[0].header[key] == cond_dict[key]:
-                        fns_result.append(fn)
-            else:
+                        flag = True
+                if flag:
+                    fns_result.append(fn)
+            elif logic == 'and':
                 flag = True
                 for key in cond_dict:
                     if hdul[0].header[key] != cond_dict[key]:
                         flag = False
                 if flag:
                     fns_result.append(fn)
+            else:
+                pass
 
     return fns_result
 
