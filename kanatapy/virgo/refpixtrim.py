@@ -322,8 +322,8 @@ if __name__ == '__main__':
     parser.add_argument('-m', '--median', action='store_true',
                         default=False,
                         help='Median value is used as an reference pixel region level. '
-                        'Default: not subtract a level of reference pixel region.')
-#                             'Default: Fitting overscan region in y-direction by Legendre 2nd func.')
+                             'Default: not subtract a level of reference pixel region.')
+    #                             'Default: Fitting overscan region in y-direction by Legendre 2nd func.')
     parser.add_argument('-o', '--overwrite', action='store_true',
                         default=False,
                         help='Overwrite existing file(s)')

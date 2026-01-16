@@ -116,7 +116,7 @@ def group_by_hwpangle(fns: list):
     hwpangle_dict = {}
     for fn in fns:
         with fits.open(fn) as hdul:
-            if not hdul[0].header.has_key('HWPANGLE'):
+            if not 'HWPANGLE' in hdul[0].header:
                 continue
             hwpangle = hdul[0].header['HWPANGLE']
             if hwpangle not in hwpangle_dict:
